@@ -9,7 +9,16 @@ const pdfParse = require('pdf-parse');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+
+// This handles the "Cannot GET /" issue in ngrok site
+app.get('/', (req, res) => {
+    res.json({
+        status: "Online",
+        message: "BidRight AI Backend is reachable!",
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Set up storage for uploaded files
 const upload = multer({ dest: 'uploads/' });
@@ -34,22 +43,13 @@ app.post('/api/analyze', upload.single('pdf'), async (req, res) => {
     try {
         let textToAnalyze = "";
 
-        // 1. Extract Text
+        // IBM will hit this "else if" block when it sends text from its document reader
         if (req.file) {
             const dataBuffer = fs.readFileSync(req.file.path);
-
-            if (req.file.mimetype === 'application/pdf') {
-                // Handle actual PDF
-                const data = await pdfParse(dataBuffer);
-                textToAnalyze = data.text;
-            } else {
-                // Handle .txt or other text files
-                textToAnalyze = dataBuffer.toString();
-            }
-
-            fs.unlinkSync(req.file.path); // Cleanup temp file
-        } else if (req.body.text) {
-            // Handle raw text sent via JSON body
+            const data = await pdfParse(dataBuffer);
+            textToAnalyze = data.text;
+            fs.unlinkSync(req.file.path);
+        } else if (req.body.text) { // This must match "text" in your swagger.json
             textToAnalyze = req.body.text;
         } else {
             return res.status(400).json({ error: "No PDF or Text provided" });
