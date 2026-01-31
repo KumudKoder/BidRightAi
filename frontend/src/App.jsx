@@ -13,49 +13,67 @@ import {
   Bot,
   ArrowRight,
   RefreshCw,
-  Download
+  Download,
+  Clock,
+  Settings as SettingsIcon,
+  User,
+  X,
+  Mail,
+  Building,
+  Calendar,
+  Key,
+  Bell,
+  Globe,
+  Save
 } from 'lucide-react';
-
-/**
- * MOCK DATA - Simulating the IBM Granite Analysis
- */
-const MOCK_ANALYSIS_RESULT = {
-  eligibility: {
-    status: "GO",
-    score: 88,
-    reason: "Company meets technical & financial criteria."
-  },
-  client: "Department of Telecommunications, Govt. of India",
-  projectValue: "₹ 2.5 Cr - ₹ 3.0 Cr",
-  deadline: "Feb 15, 2026 (14 Days left)",
-  requirements: [
-    { id: 1, text: "Must have ISO 27001 Certification", met: true },
-    { id: 2, text: "Experience in React & Node.js (3+ Projects)", met: true },
-    { id: 3, text: "Minimum Annual Turnover: ₹5 Crore in FY 2024-25", met: true },
-    { id: 4, text: "Must have local office in Delhi NCR", met: true },
-  ],
-  risks: [
-    { id: 1, level: "High", text: "Penalty Clause: 10% deduction for >1 week delay." },
-    { id: 2, level: "Medium", text: "Payment Terms: Net 90 Days (Standard is 30)." }
-  ],
-  proposalDraft: `Subject: Proposal for Digital Transformation Initiative
-
-Dear Hiring Committee,
-
-We are pleased to submit our proposal for the Digital Transformation Initiative. Having reviewed the RFP documents, we confirm that [Your Company Name] meets all eligibility criteria, including ISO 27001 certification and extensive experience in the MERN stack.
-
-Our approach focuses on rapid deployment using...`
-};
+import { GO_BID_SCENARIO } from './data/goBidScenario';
+import { NO_BID_SCENARIO } from './data/noBidScenario';
 
 const App = () => {
   // State Management
   const [appState, setAppState] = useState('idle'); // idle, uploading, processing, complete
   const [processingStep, setProcessingStep] = useState(0);
   const [fileName, setFileName] = useState("");
+  const [currentScenario, setCurrentScenario] = useState(null);
+  const [history, setHistory] = useState([
+    {
+      id: 1,
+      fileName: "Telecom_Tender_2024.pdf",
+      date: "2026-01-28",
+      time: "14:30",
+      status: "GO",
+      score: 88,
+      value: "₹2.5 Cr"
+    },
+    {
+      id: 2,
+      fileName: "Railway_Infrastructure_RFP.pdf",
+      date: "2026-01-25",
+      time: "10:15",
+      status: "NO-GO",
+      score: 45,
+      value: "₹500 Cr"
+    },
+    {
+      id: 3,
+      fileName: "Smart_City_Project.pdf",
+      date: "2026-01-22",
+      time: "16:45",
+      status: "GO",
+      score: 92,
+      value: "₹1.8 Cr"
+    }
+  ]);
+  
+  // Modal states
+  const [showHistory, setShowHistory] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Simulation Logic for the "AI Processing" Visual
-  const startSimulation = (file) => {
+  const startSimulation = (file, scenario) => {
     setFileName(file.name);
+    setCurrentScenario(scenario);
     setAppState('uploading');
 
     // Simulate Upload
@@ -103,9 +121,13 @@ const App = () => {
         </div>
         <div className="flex items-center gap-6 text-sm font-medium text-slate-600">
           <span className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200 font-semibold">Powered by IBM watsonx Orchestrate</span>
-          <span className="hover:text-blue-600 cursor-pointer transition">History</span>
-          <span className="hover:text-blue-600 cursor-pointer transition">Settings</span>
-          <div className="h-8 w-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-xs">
+          <span onClick={() => setShowHistory(true)} className="hover:text-blue-600 cursor-pointer transition flex items-center gap-1">
+            <Clock className="w-4 h-4" /> History
+          </span>
+          <span onClick={() => setShowSettings(true)} className="hover:text-blue-600 cursor-pointer transition flex items-center gap-1">
+            <SettingsIcon className="w-4 h-4" /> Settings
+          </span>
+          <div onClick={() => setShowProfile(true)} className="h-8 w-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-xs hover:bg-slate-300 cursor-pointer transition">
             JD
           </div>
         </div>
@@ -129,19 +151,29 @@ const App = () => {
 
           {/* STATE 1: IDLE / UPLOAD */}
           {appState === 'idle' && (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 border-2 border-dashed border-blue-300 m-4 rounded-xl bg-white hover:bg-blue-50/30 transition-all group cursor-pointer"
-              onClick={() => startSimulation({ name: "Government_Tender_RFP_v2.pdf" })}>
-              <div className="bg-blue-50 p-6 rounded-full shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="flex-1 flex flex-col items-center justify-center p-12 m-4">
+              <div className="bg-blue-50 p-6 rounded-full shadow-lg mb-6">
                 <UploadCloud className="w-12 h-12 text-blue-600" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Upload RFP Document</h3>
               <p className="text-slate-600 mb-8 text-center max-w-md">
-                Drag & drop your PDF here, or click to browse. <br />
-                <span className="text-xs text-slate-500 mt-2 block">Supported formats: PDF, DOCX (Max 50MB)</span>
+                Select a sample tender to analyze with AI. <br />
+                <span className="text-xs text-slate-500 mt-2 block">Demo: Choose GO or NO-GO scenario</span>
               </p>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2">
-                Select Document <ArrowRight className="w-4 h-4" />
-              </button>
+              
+              {/* Scenario Selection Buttons */}
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => startSimulation({ name: GO_BID_SCENARIO.fileName }, GO_BID_SCENARIO)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-green-600/30 transition-all flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" /> Good Fit Tender
+                </button>
+                <button 
+                  onClick={() => startSimulation({ name: NO_BID_SCENARIO.fileName }, NO_BID_SCENARIO)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-red-600/30 transition-all flex items-center gap-2">
+                  <XCircle className="w-4 h-4" /> High Risk Tender
+                </button>
+              </div>
             </div>
           )}
 
@@ -196,28 +228,36 @@ const App = () => {
           )}
 
           {/* STATE 3: COMPLETE / DASHBOARD */}
-          {appState === 'complete' && (
+          {appState === 'complete' && currentScenario && (
             <div className="flex flex-col h-full">
               {/* Top Summary Bar */}
               <div className="bg-white border-b border-slate-200 p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="col-span-1 md:col-span-1">
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Recommendation</p>
                   <div className="flex items-center gap-2">
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold border border-green-200 flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" /> GO BID
+                    <span className={`px-3 py-1 rounded-full text-sm font-bold border flex items-center gap-1 ${
+                      currentScenario.eligibility.status === 'GO' 
+                        ? 'bg-green-100 text-green-700 border-green-200' 
+                        : 'bg-red-100 text-red-700 border-red-200'
+                    }`}>
+                      {currentScenario.eligibility.status === 'GO' ? (
+                        <><CheckCircle className="w-4 h-4" /> GO BID</>
+                      ) : (
+                        <><XCircle className="w-4 h-4" /> NO-GO</>
+                      )}
                     </span>
-                    <span className="text-2xl font-bold text-slate-800">88/100</span>
+                    <span className="text-2xl font-bold text-slate-800">{currentScenario.eligibility.score}/100</span>
                   </div>
                 </div>
 
                 <div className="col-span-1 md:col-span-1">
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Est. Value</p>
-                  <p className="text-xl font-bold text-slate-800">{MOCK_ANALYSIS_RESULT.projectValue}</p>
+                  <p className="text-xl font-bold text-slate-800">{currentScenario.projectValue}</p>
                 </div>
 
                 <div className="col-span-1 md:col-span-1">
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Deadline</p>
-                  <p className="text-xl font-bold text-slate-800 text-orange-600">{MOCK_ANALYSIS_RESULT.deadline}</p>
+                  <p className="text-xl font-bold text-orange-600">{currentScenario.deadline}</p>
                 </div>
 
                 <div className="col-span-1 flex items-center justify-end">
@@ -243,10 +283,10 @@ const App = () => {
                         <h3 className="font-bold text-slate-800 flex items-center gap-2">
                           <FileCheck className="w-5 h-5 text-blue-600" /> Mandatory Requirements
                         </h3>
-                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-medium">4 Found</span>
+                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-medium">{currentScenario.requirements.length} Found</span>
                       </div>
                       <div className="space-y-3">
-                        {MOCK_ANALYSIS_RESULT.requirements.map((req) => (
+                        {currentScenario.requirements.map((req) => (
                           <div key={req.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
                             <div className="mt-0.5">
                               {req.met ? (
@@ -267,10 +307,14 @@ const App = () => {
                         <h3 className="font-bold text-slate-800 flex items-center gap-2">
                           <ShieldAlert className="w-5 h-5 text-orange-600" /> Detected Risks
                         </h3>
-                        <span className="text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded font-medium">2 Critical</span>
+                        <span className={`text-xs px-2 py-1 rounded font-medium ${
+                          currentScenario.eligibility.status === 'GO' 
+                            ? 'bg-orange-50 text-orange-700' 
+                            : 'bg-red-50 text-red-700'
+                        }`}>{currentScenario.risks.length} Critical</span>
                       </div>
                       <div className="space-y-3">
-                        {MOCK_ANALYSIS_RESULT.risks.map((risk) => (
+                        {currentScenario.risks.map((risk) => (
                           <div key={risk.id} className="flex items-start gap-3 p-3 bg-orange-50/50 rounded-lg border border-orange-100">
                             <AlertTriangle className={`w-5 h-5 ${risk.level === 'High' ? 'text-red-500' : 'text-orange-500'}`} />
                             <div>
@@ -301,7 +345,7 @@ const App = () => {
                         <div className="prose prose-sm prose-slate max-w-none">
                           <p className="text-xs text-slate-400 mb-4 uppercase tracking-widest font-semibold">Preview</p>
                           <div className="whitespace-pre-wrap font-mono text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded border border-slate-100">
-                            {MOCK_ANALYSIS_RESULT.proposalDraft}
+                            {currentScenario.proposalDraft}
                             <span className="animate-pulse">|</span>
                           </div>
                         </div>
@@ -321,6 +365,207 @@ const App = () => {
 
         </div>
       </main>
+
+      {/* --- HISTORY MODAL --- */}
+      {showHistory && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowHistory(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="w-6 h-6 text-white" />
+                <h2 className="text-2xl font-bold text-white">Analysis History</h2>
+              </div>
+              <button onClick={() => setShowHistory(false)} className="text-white hover:bg-white/20 p-2 rounded-lg transition">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
+              {history.length === 0 ? (
+                <div className="text-center py-12 text-slate-400">
+                  <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                  <p>No analysis history yet. Upload your first RFP!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {history.map((item) => (
+                    <div key={item.id} className="bg-slate-50 rounded-xl p-5 border border-slate-200 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <FileText className="w-5 h-5 text-slate-400" />
+                            <h3 className="font-semibold text-slate-900">{item.fileName}</h3>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-slate-500 mb-3">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" /> {item.date}
+                            </span>
+                            <span>{item.time}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 ${
+                              item.status === 'GO' 
+                                ? 'bg-green-100 text-green-700 border border-green-200' 
+                                : 'bg-red-100 text-red-700 border border-red-200'
+                            }`}>
+                              {item.status === 'GO' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                              {item.status} BID
+                            </span>
+                            <span className="text-slate-600 font-medium">Score: {item.score}/100</span>
+                            <span className="text-slate-600">Value: {item.value}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- SETTINGS MODAL --- */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowSettings(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <SettingsIcon className="w-6 h-6 text-white" />
+                <h2 className="text-2xl font-bold text-white">Settings</h2>
+              </div>
+              <button onClick={() => setShowSettings(false)} className="text-white hover:bg-white/20 p-2 rounded-lg transition">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)] space-y-6">
+              
+              {/* API Configuration */}
+              <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <Key className="w-5 h-5 text-blue-600" /> API Configuration
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">IBM watsonx API Key</label>
+                    <input 
+                      type="password" 
+                      placeholder="••••••••••••••••" 
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Orchestrate Endpoint</label>
+                    <input 
+                      type="text" 
+                      placeholder="https://api.watsonx.ibm.com/..." 
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Notifications */}
+              <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <Bell className="w-5 h-5 text-orange-600" /> Notifications
+                </h3>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm text-slate-700">Email notifications for new tenders</span>
+                    <input type="checkbox" defaultChecked className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm text-slate-700">Alert on high-risk clauses detected</span>
+                    <input type="checkbox" defaultChecked className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm text-slate-700">Weekly analysis summary</span>
+                    <input type="checkbox" className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500" />
+                  </label>
+                </div>
+              </div>
+
+              {/* Language & Region */}
+              <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-green-600" /> Language & Region
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Language</label>
+                    <select className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option>English (US)</option>
+                      <option>Hindi (भारत)</option>
+                      <option>English (UK)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Currency</label>
+                    <select className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option>INR (₹)</option>
+                      <option>USD ($)</option>
+                      <option>EUR (€)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition">
+                <Save className="w-5 h-5" /> Save Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- PROFILE MODAL --- */}
+      {showProfile && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowProfile(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-center relative">
+              <button onClick={() => setShowProfile(false)} className="absolute top-4 right-4 text-white hover:bg-white/20 p-2 rounded-lg transition">
+                <X className="w-5 h-5" />
+              </button>
+              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white flex items-center justify-center mx-auto mb-4">
+                <User className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-1">John Doe</h2>
+              <p className="text-blue-100">Bid Manager</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <Mail className="w-5 h-5 text-slate-400" />
+                <div>
+                  <p className="text-xs text-slate-500">Email</p>
+                  <p className="text-sm font-medium text-slate-900">john.doe@company.com</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <Building className="w-5 h-5 text-slate-400" />
+                <div>
+                  <p className="text-xs text-slate-500">Organization</p>
+                  <p className="text-sm font-medium text-slate-900">TechSolutions Pvt. Ltd.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <Calendar className="w-5 h-5 text-slate-400" />
+                <div>
+                  <p className="text-xs text-slate-500">Member Since</p>
+                  <p className="text-sm font-medium text-slate-900">January 2025</p>
+                </div>
+              </div>
+              <div className="pt-4 border-t border-slate-200 space-y-2">
+                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition">
+                  Edit Profile
+                </button>
+                <button className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg font-medium transition">
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
