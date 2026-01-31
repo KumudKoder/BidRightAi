@@ -88,13 +88,14 @@ Constraint: Output ONLY raw JSON. No conversational filler.`;
         // 3. Call IBM Watsonx with your specified parameters
         const token = await getIBMToken();
         const response = await axios.post(IBM_URL, {
-            model_id: "ibm/granite-13b-chat-v2",
+            model_id: "ibm/granite-3-3-8b-instruct",
             input: prompt,
             parameters: {
                 decoding_method: "greedy",
                 max_new_tokens: 500,
                 min_new_tokens: 0,
-                repetition_penalty: 1.0
+                repetition_penalty: 1.0,
+                stop_sequences: ["}\n\n**Note:", "}\n\n}", "}\n}"]
             },
             project_id: IBM_PROJECT_ID
         }, {
