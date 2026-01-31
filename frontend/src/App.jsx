@@ -31,7 +31,7 @@ const MOCK_ANALYSIS_RESULT = {
   requirements: [
     { id: 1, text: "Must have ISO 27001 Certification", met: true },
     { id: 2, text: "Experience in React & Node.js (3+ Projects)", met: true },
-    { id: 3, text: "Turnover > ₹5Cr in last FY", met: true },
+    { id: 3, text: "Minimum Annual Turnover: ₹5 Crore in FY 2024-25", met: true },
     { id: 4, text: "Must have local office in Delhi NCR", met: true },
   ],
   risks: [
@@ -102,6 +102,7 @@ const App = () => {
           <span className="text-xl font-bold tracking-tight text-slate-800">Bidright<span className="text-blue-600">AI</span></span>
         </div>
         <div className="flex items-center gap-6 text-sm font-medium text-slate-600">
+          <span className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200 font-semibold">Powered by IBM watsonx Orchestrate</span>
           <span className="hover:text-blue-600 cursor-pointer transition">History</span>
           <span className="hover:text-blue-600 cursor-pointer transition">Settings</span>
           <div className="h-8 w-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-xs">
@@ -163,7 +164,7 @@ const App = () => {
                 <div className="bg-white rounded-xl border border-slate-200 shadow-lg p-6 space-y-6">
                   <div className="flex items-center justify-between text-sm font-medium text-slate-600 border-b border-slate-100 pb-4">
                     <span>Processing: {fileName}</span>
-                    <span className="text-blue-600 animate-pulse">Running Agent...</span>
+                    <span className="text-blue-600 animate-pulse">Orchestrating BidRight Agent (IBM watsonx)...</span>
                   </div>
 
                   <div className="space-y-4">
