@@ -136,19 +136,6 @@ BidRightAI/
 
 - `VITE_API_URL`: Backend API URL (default: http://localhost:5000)
 
-## 🚨 Troubleshooting
-
-### Backend not connecting
-
-1. Check if `.env` file exists in server directory
-2. Verify IBM credentials are correct
-3. Ensure port 5000 is not in use
-
-### Frontend can't reach backend
-
-1. Verify backend is running on port 5000
-2. Check CORS settings in `server.js`
-3. Confirm `VITE_API_URL` in frontend `.env`
 
 ## 📦 Production Deployment
 
