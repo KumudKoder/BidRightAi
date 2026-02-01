@@ -24,16 +24,7 @@ cd server
 npm install
 ```
 
-3. Create `.env` file with your IBM credentials:
-
-```env
-IBM_API_KEY=your_ibm_api_key_here
-IBM_PROJECT_ID=your_project_id_here
-IBM_URL=https://us-south.ml.cloud.ibm.com/ml/v1/text/generation?version=2023-05-29
-PORT=5000
-```
-
-4. Start the server:
+3. Start the server:
 
 ```bash
 npm start
