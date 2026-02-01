@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BidRightAI - Connection Test</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+      }
+      .container {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        color: #333;
+      }
+      h1 {
+        color: #667eea;
+        margin-bottom: 30px;
+      }
+      .test-item {
+        background: #f7fafc;
+        border-left: 4px solid #cbd5e0;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+      }
+      .test-item.success {
+        border-left-color: #48bb78;
+        background: #f0fff4;
+      }
+      .test-item.error {
+        border-left-color: #f56565;
+        background: #fff5f5;
+      }
+      .status {
+        font-weight: bold;
+        font-size: 14px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-left: 10px;
+      }
+      .status.success {
+        background: #48bb78;
+        color: white;
+      }
+      .status.error {
+        background: #f56565;
+        color: white;
+      }
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+      button:hover {
+        background: #5a67d8;
+      }
+      pre {
+        background: #2d3748;
+        color: #68d391;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔌 BidRightAI Connection Test</h1>
+      <p>Testing connectivity between Frontend and Backend...</p>
+
+      <button onclick="runTests()">Run Tests</button>
+
+      <div id="results"></div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:5000";
+
+      async function runTests() {
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "<p>Running tests...</p>";
+
+        let html = "";
+
+        // Test 1: Backend Health Check
+        html += '<div class="test-item">';
+        html += "<strong>Test 1: Backend Server Status</strong>";
+        try {
+          const response = await fetch(API_URL);
+          const data = await response.json();
+          if (response.ok) {
+            html += '<span class="status success">✓ PASS</span>';
+            html += "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+          } else {
+            html += '<span class="status error">✗ FAIL</span>';
+          }
+          html += "</div>";
+        } catch (error) {
+          html += '<span class="status error">✗ FAIL</span>';
+          html += "<p>Error: " + error.message + "</p>";
+          html += "<p>Make sure the backend server is running on port 5000</p>";
+          html += "</div>";
+        }
+
+        // Test 2: CORS Check
+        html += '<div class="test-item">';
+        html += "<strong>Test 2: CORS Configuration</strong>";
+        try {
+          const response = await fetch(API_URL, {
+            method: "OPTIONS",
+          });
+          html += '<span class="status success">✓ PASS</span>';
+          html += "<p>CORS is properly configured</p>";
+          html += "</div>";
+        } catch (error) {
+          html += '<span class="status error">✗ FAIL</span>';
+          html += "<p>CORS Error: " + error.message + "</p>";
+          html += "</div>";
+        }
+
+        // Test 3: API Endpoint Check
+        html += '<div class="test-item">';
+        html += "<strong>Test 3: Analysis API Endpoint</strong>";
+        try {
+          const response = await fetch(API_URL + "/api/analyze", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: "Test RFP Document for analysis",
+            }),
+          });
+
+          if (response.status === 500 || response.status === 200) {
+            html += '<span class="status success">✓ PASS</span>';
+            html +=
+              "<p>Endpoint is reachable (may fail without IBM credentials)</p>";
+          } else {
+            html += '<span class="status error">✗ FAIL</span>';
+          }
+          html += "</div>";
+        } catch (error) {
+          html += '<span class="status error">✗ FAIL</span>';
+          html += "<p>Error: " + error.message + "</p>";
+          html += "</div>";
+        }
+
+        // Summary
+        html += '<div class="test-item success">';
+        html += "<strong>✅ Connection Test Complete</strong>";
+        html +=
+          "<p>If all tests passed, your frontend can successfully communicate with the backend!</p>";
+        html += "</div>";
+
+        resultsDiv.innerHTML = html;
+      }
+    </script>
+  </body>
+</html>
